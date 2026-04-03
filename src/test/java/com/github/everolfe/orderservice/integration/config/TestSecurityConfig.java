@@ -2,7 +2,10 @@ package com.github.everolfe.orderservice.integration.config;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,10 +20,14 @@ import static org.mockito.Mockito.mock;
 public class TestSecurityConfig {
 
     @Bean
-    public SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
+    @Primary
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
+                        .requestMatchers("/api/items/**").hasRole("ADMIN")
+                        .requestMatchers( HttpMethod.GET, "/api/items/**").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf.disable());
         return http.build();
