@@ -757,7 +757,6 @@ class OrderServiceImplTest {
     @Test
     @WithMockUser("ADMIN")
     void updateOrder_withInvalidID_throwEntityNotFoundException(){
-        List<GetPaymentCardDto> cards = new ArrayList<>();
 
         CreateOrderItemDto item = new CreateOrderItemDto(1L,1);
 
@@ -830,12 +829,10 @@ class OrderServiceImplTest {
                 LocalDateTime.now()
         );
 
-        Set<GetOrderItemDto> orderItemDtoSet = new HashSet<>();
-        orderItemDtoSet.add(orderItemDto);
 
 
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
-        when(userClientService.getUserById(1l)).thenReturn(user);
+        when(userClientService.getUserById(1L)).thenReturn(user);
         assertThrows(IllegalArgumentException.class, () -> orderService.updateOrder(1L, createOrderDto));
     }
 
