@@ -438,7 +438,7 @@ class OrderServiceImplTest {
         List<Long> userIds = List.of(1L);
         List<Status> statuses = List.of(Status.PENDING);
 
-        when(orderRepository.findAll(any(Specification.class), pageable)).thenReturn(orderPage);
+        when(orderRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(orderPage);
         when(userClientService.getAllById(userIds)).thenReturn(users);
         when(getOrderWithoutUserMapper.toDto(any(Order.class))).thenReturn(getOrderDtoWithoutUser);
 
@@ -450,7 +450,7 @@ class OrderServiceImplTest {
                 () -> Assertions.assertEquals(1L, res.getContent().getFirst().getOrderDtoWithoutUser().id())
         );
 
-        verify(orderRepository, times(1)).findAll(any(Specification.class), pageable);
+        verify(orderRepository, times(1)).findAll(any(Specification.class), eq(pageable));
         verify(userClientService, times(1)).getAllById(userIds);
         verify(getOrderWithoutUserMapper, times(1)).toDto(any(Order.class));
     }
@@ -511,7 +511,7 @@ class OrderServiceImplTest {
         List<Long> userIds = List.of(1L);
 
 
-        when(orderRepository.findAll(any(Specification.class), pageable)).thenReturn(orderPage);
+        when(orderRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(orderPage);
         when(userClientService.getAllById(userIds)).thenReturn(users);
         when(getOrderWithoutUserMapper.toDto(any(Order.class))).thenReturn(getOrderDtoWithoutUser);
 
@@ -524,7 +524,7 @@ class OrderServiceImplTest {
                 () -> Assertions.assertEquals(1L, res.getContent().getFirst().getOrderDtoWithoutUser().id())
         );
 
-        verify(orderRepository, times(1)).findAll(any(Specification.class), pageable);
+        verify(orderRepository, times(1)).findAll(any(Specification.class), eq(pageable));
         verify(userClientService, times(1)).getAllById(userIds);
         verify(getOrderWithoutUserMapper, times(1)).toDto(any(Order.class));
     }
