@@ -812,15 +812,6 @@ class OrderServiceImplTest {
         itemEntity.setPrice(100L);
         itemEntity.setId(1L);
 
-        GetItemDto getItemDto = new GetItemDto(
-                1L,
-                "name",
-                BigDecimal.ONE,
-                false,
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
-
 
 
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
