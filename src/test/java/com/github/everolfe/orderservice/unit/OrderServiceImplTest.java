@@ -821,14 +821,6 @@ class OrderServiceImplTest {
                 LocalDateTime.now()
         );
 
-        GetOrderItemDto orderItemDto = new GetOrderItemDto(
-                1L,
-                2,
-                getItemDto,
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
-
 
 
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
