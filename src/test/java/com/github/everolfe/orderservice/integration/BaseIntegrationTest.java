@@ -38,14 +38,6 @@ class BaseIntegrationTest {
     @MockitoBean
     protected UserClientService userServiceClient;
 
-    @RegisterExtension
-    static WireMockExtension wireMockServer = WireMockExtension.newInstance()
-            .options(WireMockConfiguration.wireMockConfig().dynamicPort())
-            .build();
-
-    @LocalServerPort
-    protected int port;
-
     @Container
     static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
             DockerImageName.parse("postgres:15-alpine")
