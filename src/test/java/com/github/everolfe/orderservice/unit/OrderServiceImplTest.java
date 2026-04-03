@@ -759,18 +759,6 @@ class OrderServiceImplTest {
     void updateOrder_withInvalidID_throwEntityNotFoundException(){
         List<GetPaymentCardDto> cards = new ArrayList<>();
 
-        GetUserDto user = new GetUserDto(
-                -1L,
-                "Test",
-                "TestN",
-                LocalDate.now(),
-                "email@gmail.com",
-                true,
-                cards,
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
-
         CreateOrderItemDto item = new CreateOrderItemDto(1L,1);
 
         List<CreateOrderItemDto> items = new ArrayList<>();
@@ -845,13 +833,6 @@ class OrderServiceImplTest {
         Set<GetOrderItemDto> orderItemDtoSet = new HashSet<>();
         orderItemDtoSet.add(orderItemDto);
 
-        GetOrderDtoWithoutUser getOrderDtoWithoutUser = new GetOrderDtoWithoutUser(
-                1L,
-                "pending",
-                BigDecimal.ONE,
-                false,
-                orderItemDtoSet
-        );
 
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
         when(userClientService.getUserById(1l)).thenReturn(user);
