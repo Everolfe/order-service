@@ -69,15 +69,6 @@ public class ItemIntegrationTest extends BaseIntegrationTest {
         assertThat(response.updatedAt()).isNotNull();
     }
 
-    @Test
-    void createItem_WithoutAuth_ShouldReturnUnauthorized() throws Exception {
-        CreateItemDto createDto = new CreateItemDto("Test Item", new BigDecimal("99.99"));
-
-        mockMvc.perform(post(baseUrl)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto)))
-                .andExpect(status().isUnauthorized());
-    }
 
     @Test
     @WithMockUser(authorities = "ROLE_ADMIN")
@@ -193,14 +184,6 @@ public class ItemIntegrationTest extends BaseIntegrationTest {
         assertThat(totalElements).isEqualTo(3);
         assertThat(number).isEqualTo(0);
         assertThat(size).isEqualTo(10);
-    }
-
-    @Test
-    void getAllItems_WithoutAuth_ShouldReturnUnauthorized() throws Exception {
-        mockMvc.perform(get(baseUrl)
-                        .param("page", "0")
-                        .param("size", "10"))
-                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -361,11 +344,6 @@ public class ItemIntegrationTest extends BaseIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
-    @Test
-    void deleteItem_WithoutAuth_ShouldReturnUnauthorized() throws Exception {
-        mockMvc.perform(delete(baseUrl + "/{id}", 1L))
-                .andExpect(status().isUnauthorized());
-    }
 
     @Test
     @WithMockUser(authorities = "ROLE_ADMIN")

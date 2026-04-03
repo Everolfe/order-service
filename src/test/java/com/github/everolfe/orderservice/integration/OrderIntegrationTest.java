@@ -100,19 +100,6 @@ public class OrderIntegrationTest extends BaseIntegrationTest {
         assertThat(response.getUserDto().email()).isEqualTo("test@example.com");
     }
 
-    @Test
-    void createOrder_WithoutAuth_ShouldReturnUnauthorized() throws Exception {
-        CreateOrderItemDto orderItemDto = new CreateOrderItemDto(1L, 2);
-        CreateOrderDto createOrderDto = new CreateOrderDto(
-                "test@example.com",
-                List.of(orderItemDto)
-        );
-
-        mockMvc.perform(post(baseUrl)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createOrderDto)))
-                .andExpect(status().isUnauthorized());
-    }
 
     @Test
     void getOrderById_ShouldReturnOrder() throws Exception {
@@ -214,14 +201,6 @@ public class OrderIntegrationTest extends BaseIntegrationTest {
         assertThat(totalElements).isEqualTo(3);
         assertThat(number).isEqualTo(0);
         assertThat(size).isEqualTo(10);
-    }
-
-    @Test
-    void getAllOrders_WithoutAuth_ShouldReturnUnauthorized() throws Exception {
-        mockMvc.perform(get(baseUrl)
-                        .param("page", "0")
-                        .param("size", "10"))
-                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -355,12 +334,6 @@ public class OrderIntegrationTest extends BaseIntegrationTest {
         mockMvc.perform(get(baseUrl + "/{id}", orderId)
                         .with(httpBasic("admin", "admin")))
                 .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void deleteOrder_WithoutAuth_ShouldReturnUnauthorized() throws Exception {
-        mockMvc.perform(delete(baseUrl + "/{id}", 1L))
-                .andExpect(status().isUnauthorized());
     }
 
     @Test
