@@ -29,7 +29,7 @@ public class TestSecurityConfig {
                         .requestMatchers( HttpMethod.GET, "/api/items/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .csrf(csrf -> csrf.disable());
+                .httpBasic(httpBasic -> {});
         return http.build();
     }
 
