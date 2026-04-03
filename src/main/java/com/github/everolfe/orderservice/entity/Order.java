@@ -1,7 +1,6 @@
 package com.github.everolfe.orderservice.entity;
 
 import jakarta.persistence.*;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;

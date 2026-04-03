@@ -15,6 +15,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.context.request.WebRequest;
 
 @RestControllerAdvice
@@ -31,7 +32,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(RuntimeException.class)
+    @ExceptionHandler(ResourceAccessException.class)
     public ResponseEntity<GetErrorDto> runtimeException(
             final RuntimeException e,
             final WebRequest request) {
@@ -45,9 +46,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<GetErrorDto> handleDataIntegrityViolation(
             DataIntegrityViolationException ex, WebRequest request) {
-
-        String message = "Database conflict: " + ex.getMostSpecificCause().getMessage();
-
 
         return buildErrorResponse(
                 "A resource with these details already exists or violates data constraints.",

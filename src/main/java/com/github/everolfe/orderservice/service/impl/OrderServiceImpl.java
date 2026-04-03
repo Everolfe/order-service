@@ -26,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.ResourceAccessException;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +43,7 @@ public class OrderServiceImpl implements OrderService {
     public GetOrderDto create(CreateOrderDto createOrderDto) {
         GetUserDto getUserDto = userClient.getUserByEmail(createOrderDto.userEmail());
         if (getUserDto.id() == -1L) {
-            throw new RuntimeException("User Service is unavailable, cannot create order");
+            throw new ResourceAccessException("User Service is unavailable, cannot create order");
         }
 
         Order order = new Order();
@@ -96,7 +97,7 @@ public class OrderServiceImpl implements OrderService {
     public Page<GetOrderDto> getOrdersByUserId(Long userId, Pageable pageable){
         GetUserDto getUserDto = userClient.getUserById(userId);
         if (getUserDto.id() == -1L) {
-            throw new RuntimeException("User Service is unavailable, cannot create order");
+            throw new ResourceAccessException("User Service is unavailable, cannot create order");
         }
         Page<Order> orders = orderRepository.findActiveOrdersByUserId(getUserDto.id(), pageable);
         return mapOrdersToGetDtos(orders);
@@ -214,11 +215,9 @@ public class OrderServiceImpl implements OrderService {
                         GetUserDto::id, dto -> dto
                 ));
 
-        return orders.map(order -> {
-            return new GetOrderDto(
-                    getOrderWithoutUserMapper.toDto(order),
-                    getUserDtosMap.get(order.getUserId())
-            );
-        });
+        return orders.map(order -> new GetOrderDto(
+                getOrderWithoutUserMapper.toDto(order),
+                getUserDtosMap.get(order.getUserId())
+        ));
     }
 }

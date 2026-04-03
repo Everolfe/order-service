@@ -13,6 +13,7 @@ public class UserClientService {
 
     private final UserClient userClient;
 
+    private static final String UNKNOWN_USER = "Unknown";
     private static final String USER_SERVICE = "userService";
 
     @CircuitBreaker(name = USER_SERVICE, fallbackMethod = "fallbackGetUserByEmail")
@@ -30,11 +31,11 @@ public class UserClientService {
         return userClient.getAllById(ids);
     }
 
-    private GetUserDto fallbackGetUserByEmail(String email, Throwable t) {
+    private GetUserDto fallbackGetUserByEmail(String email) {
         return new GetUserDto(
                 -1L,
-                "Unknown",
-                "Unknown",
+                UNKNOWN_USER,
+                UNKNOWN_USER,
                 null,
                 email,
                 false,
@@ -44,11 +45,11 @@ public class UserClientService {
         );
     }
 
-    private GetUserDto fallbackGetUserById(Long id, Throwable t) {
+    private GetUserDto fallbackGetUserById() {
         return new GetUserDto(
                 -1L,
-                "Unknown",
-                "Unknown",
+                UNKNOWN_USER,
+                UNKNOWN_USER,
                 null,
                 null,
                 false,
@@ -58,7 +59,7 @@ public class UserClientService {
         );
     }
 
-    private List<GetUserDto> fallbackGetAllById(List<Long> ids, Throwable t) {
+    private List<GetUserDto> fallbackGetAllById() {
         return Collections.emptyList();
     }
 }

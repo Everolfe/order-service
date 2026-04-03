@@ -21,6 +21,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final GetItemMapper getItemMapper;
     private final CreateItemMapper createItemMapper;
+    private static final String ITEM_NOT_FOUND_MESSAGE = "Item not found by id: ";
 
     @Override
     @Transactional
@@ -35,7 +36,7 @@ public class ItemServiceImpl implements ItemService {
     public GetItemDto getItemById(Long id) {
         Item item = itemRepository.findById(id)
                 .filter(i -> !i.getDeleted())
-                .orElseThrow(() -> new EntityNotFoundException("Item not found by id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ITEM_NOT_FOUND_MESSAGE + id));
         return getItemMapper.toDto(item);
     }
 
@@ -51,7 +52,7 @@ public class ItemServiceImpl implements ItemService {
     public GetItemDto updateItem(Long id, CreateItemDto createItemDto) {
         Item item = itemRepository
                 .findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Item not found by id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ITEM_NOT_FOUND_MESSAGE + id));
         createItemMapper.merge(item, createItemDto);
         Item savedItem = itemRepository.save(item);
         return getItemMapper.toDto(savedItem);
@@ -62,7 +63,7 @@ public class ItemServiceImpl implements ItemService {
     public GetItemDto deleteItem(Long id) {
         Item item = itemRepository
                 .findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Item not found by id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ITEM_NOT_FOUND_MESSAGE + id));
 
         if (item.getDeleted()) {
             throw new EntityNotFoundException("Item already deleted by id: " + id);

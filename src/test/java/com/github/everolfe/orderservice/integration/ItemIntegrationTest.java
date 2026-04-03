@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class ItemIntegrationTest extends BaseIntegrationTest {
+class ItemIntegrationTest extends BaseIntegrationTest {
 
     @RegisterExtension
     static WireMockExtension wireMockServer = WireMockExtension.newInstance()
@@ -196,7 +196,7 @@ public class ItemIntegrationTest extends BaseIntegrationTest {
 
         assertThat(items).hasSize(3);
         assertThat(totalElements).isEqualTo(3);
-        assertThat(number).isEqualTo(0);
+        assertThat(number).isZero();
         assertThat(size).isEqualTo(10);
     }
 
@@ -224,7 +224,7 @@ public class ItemIntegrationTest extends BaseIntegrationTest {
 
         assertThat(firstPageItems).hasSize(2);
         assertThat(totalElements).isEqualTo(5);
-        assertThat(number).isEqualTo(0);
+        assertThat(number).isZero();
         assertThat(hasNext).isTrue();
 
         MvcResult secondPageResult = mockMvc.perform(get(baseUrl)
@@ -261,9 +261,7 @@ public class ItemIntegrationTest extends BaseIntegrationTest {
         );
         Long itemId = created.id();
 
-        String updateJson = String.format(
-                "{\"name\":\"Updated Name\",\"price\":150.00}"
-        );
+        String updateJson = "{\"name\":\"Updated Name\",\"price\":150.00}";
 
         MvcResult updateResult = mockMvc.perform(put(baseUrl + "/{id}", itemId)
                         .contentType(MediaType.APPLICATION_JSON)

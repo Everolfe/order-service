@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class OrderIntegrationTest extends BaseIntegrationTest {
+class OrderIntegrationTest extends BaseIntegrationTest {
 
     @RegisterExtension
     static WireMockExtension wireMockServer = WireMockExtension.newInstance()
@@ -213,7 +213,7 @@ public class OrderIntegrationTest extends BaseIntegrationTest {
 
         assertThat(orders).hasSize(3);
         assertThat(totalElements).isEqualTo(3);
-        assertThat(number).isEqualTo(0);
+        assertThat(number).isZero();
         assertThat(size).isEqualTo(10);
     }
 

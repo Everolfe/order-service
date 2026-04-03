@@ -2,16 +2,12 @@ package com.github.everolfe.orderservice.integration;
 
 import com.github.everolfe.orderservice.dto.user.GetUserDto;
 import com.github.everolfe.orderservice.integration.config.TestSecurityConfig;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import java.time.Duration;
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import com.github.everolfe.orderservice.service.client.UserClientService;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;

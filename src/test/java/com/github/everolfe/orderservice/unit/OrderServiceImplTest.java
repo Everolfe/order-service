@@ -39,6 +39,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.web.client.ResourceAccessException;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -178,7 +179,7 @@ class OrderServiceImplTest {
 
         when(userClientService.getUserByEmail(createOrderDto.userEmail())).thenReturn(user);
 
-        assertThrows(RuntimeException.class, () -> orderService.create(createOrderDto));
+        assertThrows(ResourceAccessException.class, () -> orderService.create(createOrderDto));
         verify(userClientService,times(1)).getUserByEmail(createOrderDto.userEmail());
         verify(itemRepository,times(0)).save(any(Item.class));
     }
@@ -377,7 +378,7 @@ class OrderServiceImplTest {
 
         when(userClientService.getUserById(-1L)).thenReturn(user);
         Pageable pageable = PageRequest.of(0, 10);
-        assertThrows(RuntimeException.class,
+        assertThrows(ResourceAccessException.class,
                 () -> orderService.getOrdersByUserId(-1L,pageable ));
     }
 
@@ -437,8 +438,8 @@ class OrderServiceImplTest {
         List<Long> userIds = List.of(1L);
         List<Status> statuses = List.of(Status.PENDING);
 
-        when(orderRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(orderPage);
-        when(userClientService.getAllById(eq(userIds))).thenReturn(users);
+        when(orderRepository.findAll(any(Specification.class), pageable)).thenReturn(orderPage);
+        when(userClientService.getAllById(userIds)).thenReturn(users);
         when(getOrderWithoutUserMapper.toDto(any(Order.class))).thenReturn(getOrderDtoWithoutUser);
 
         Page<GetOrderDto> res = orderService.getOrdersByStatus(statuses, pageable);
@@ -449,8 +450,8 @@ class OrderServiceImplTest {
                 () -> Assertions.assertEquals(1L, res.getContent().getFirst().getOrderDtoWithoutUser().id())
         );
 
-        verify(orderRepository, times(1)).findAll(any(Specification.class), eq(pageable));
-        verify(userClientService, times(1)).getAllById(eq(userIds));
+        verify(orderRepository, times(1)).findAll(any(Specification.class), pageable);
+        verify(userClientService, times(1)).getAllById(userIds);
         verify(getOrderWithoutUserMapper, times(1)).toDto(any(Order.class));
     }
 
@@ -510,8 +511,8 @@ class OrderServiceImplTest {
         List<Long> userIds = List.of(1L);
 
 
-        when(orderRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(orderPage);
-        when(userClientService.getAllById(eq(userIds))).thenReturn(users);
+        when(orderRepository.findAll(any(Specification.class), pageable)).thenReturn(orderPage);
+        when(userClientService.getAllById(userIds)).thenReturn(users);
         when(getOrderWithoutUserMapper.toDto(any(Order.class))).thenReturn(getOrderDtoWithoutUser);
 
         Page<GetOrderDto> res = orderService.getOrdersByCreationDate(
@@ -523,8 +524,8 @@ class OrderServiceImplTest {
                 () -> Assertions.assertEquals(1L, res.getContent().getFirst().getOrderDtoWithoutUser().id())
         );
 
-        verify(orderRepository, times(1)).findAll(any(Specification.class), eq(pageable));
-        verify(userClientService, times(1)).getAllById(eq(userIds));
+        verify(orderRepository, times(1)).findAll(any(Specification.class), pageable);
+        verify(userClientService, times(1)).getAllById(userIds);
         verify(getOrderWithoutUserMapper, times(1)).toDto(any(Order.class));
     }
 
@@ -584,8 +585,8 @@ class OrderServiceImplTest {
         List<Long> userIds = List.of(1L);
 
 
-        when(orderRepository.findAll(eq(pageable))).thenReturn(orderPage);
-        when(userClientService.getAllById(eq(userIds))).thenReturn(users);
+        when(orderRepository.findAll(pageable)).thenReturn(orderPage);
+        when(userClientService.getAllById(userIds)).thenReturn(users);
         when(getOrderWithoutUserMapper.toDto(any(Order.class))).thenReturn(getOrderDtoWithoutUser);
 
         Page<GetOrderDto> res = orderService.getAllOrders(pageable);
@@ -596,8 +597,8 @@ class OrderServiceImplTest {
                 () -> Assertions.assertEquals(1L, res.getContent().getFirst().getOrderDtoWithoutUser().id())
         );
 
-        verify(orderRepository, times(1)).findAll( eq(pageable));
-        verify(userClientService, times(1)).getAllById(eq(userIds));
+        verify(orderRepository, times(1)).findAll( pageable);
+        verify(userClientService, times(1)).getAllById(userIds);
         verify(getOrderWithoutUserMapper, times(1)).toDto(any(Order.class));
     }
 
