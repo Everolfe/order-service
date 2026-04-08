@@ -5,10 +5,12 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserClientService {
 
     private final UserClient userClient;
@@ -31,7 +33,8 @@ public class UserClientService {
         return userClient.getAllById(ids);
     }
 
-    private GetUserDto fallbackGetUserByEmail(String email) {
+    private GetUserDto fallbackGetUserByEmail(String email, Throwable t) {
+        log.error("Circuit breaker fallback for email: {}", email, t);
         return new GetUserDto(
                 -1L,
                 UNKNOWN_USER,
@@ -45,7 +48,8 @@ public class UserClientService {
         );
     }
 
-    private GetUserDto fallbackGetUserById() {
+    private GetUserDto fallbackGetUserById(Long id, Throwable t) {
+        log.error("Circuit breaker fallback for id: {}", id, t);
         return new GetUserDto(
                 -1L,
                 UNKNOWN_USER,
@@ -59,7 +63,8 @@ public class UserClientService {
         );
     }
 
-    private List<GetUserDto> fallbackGetAllById() {
+    private List<GetUserDto> fallbackGetAllById(List<Long> ids, Throwable t) {
+        log.error("Circuit breaker fallback for ids: {}", ids, t);
         return Collections.emptyList();
     }
 }
