@@ -12,6 +12,7 @@ import com.github.everolfe.orderservice.dto.order.GetOrderDto;
 import com.github.everolfe.orderservice.dto.orderitem.CreateOrderItemDto;
 import com.github.everolfe.orderservice.dto.orderitem.GetOrderItemDto;
 import com.github.everolfe.orderservice.entity.Status;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +30,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -36,15 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-class OrderIntegrationTest extends BaseIntegrationTest {
-
-    @RegisterExtension
-    static WireMockExtension wireMockServer = WireMockExtension.newInstance()
-            .options(WireMockConfiguration.wireMockConfig().dynamicPort())
-            .build();
-
-    @LocalServerPort
-    protected int port;
+class OrderIntegrationTest extends WireMockIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -65,6 +61,81 @@ class OrderIntegrationTest extends BaseIntegrationTest {
         baseUrl = "/api/orders";
         orderRepository.deleteAll();
         itemRepository.deleteAll();
+        stubUserServiceEndpoints();
+    }
+
+    private void stubUserServiceEndpoints() {
+        String userByEmailResponse = """
+                {
+                    "id": 1,
+                    "firstName": "Test",
+                    "lastName": "User",
+                    "middleName": null,
+                    "email": "test@example.com",
+                    "deleted": false,
+                    "roles": [],
+                    "createdAt": null,
+                    "updatedAt": null
+                }
+                """;
+
+        wireMockServer.stubFor(WireMock.get(urlPathEqualTo("/api/users/email"))
+                .withQueryParam("email", WireMock.equalTo("test@example.com"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(userByEmailResponse)));
+
+        for (int i = 1; i <= 3; i++) {
+            final int index = i;
+            wireMockServer.stubFor(WireMock.get(urlPathEqualTo("/api/users/email"))
+                    .withQueryParam("email", WireMock.equalTo("test" + index + "@example.com"))
+                    .willReturn(aResponse()
+                            .withStatus(200)
+                            .withHeader("Content-Type", "application/json")
+                            .withBody(userByEmailResponse.replace("test@example.com", "test" + index + "@example.com")
+                                    .replace("\"id\": 1", "\"id\": " + index))));
+        }
+
+        String userByIdResponse = """
+                {
+                    "id": 1,
+                    "firstName": "Test",
+                    "lastName": "User",
+                    "middleName": null,
+                    "email": "test@example.com",
+                    "deleted": false,
+                    "roles": [],
+                    "createdAt": null,
+                    "updatedAt": null
+                }
+                """;
+
+        wireMockServer.stubFor(WireMock.get(urlPathEqualTo("/api/users/1"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(userByIdResponse)));
+
+        String usersByIdsResponse = """
+                [{
+                    "id": 1,
+                    "firstName": "Test",
+                    "lastName": "User",
+                    "middleName": null,
+                    "email": "test@example.com",
+                    "deleted": false,
+                    "roles": [],
+                    "createdAt": null,
+                    "updatedAt": null
+                }]
+                """;
+
+        wireMockServer.stubFor(WireMock.post(urlPathEqualTo("/api/users/batch/id"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(usersByIdsResponse)));
     }
 
     @Test

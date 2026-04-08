@@ -29,15 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-class ItemIntegrationTest extends BaseIntegrationTest {
-
-    @RegisterExtension
-    static WireMockExtension wireMockServer = WireMockExtension.newInstance()
-            .options(WireMockConfiguration.wireMockConfig().dynamicPort())
-            .build();
-
-    @LocalServerPort
-    protected int port;
+class ItemIntegrationTest extends WireMockIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

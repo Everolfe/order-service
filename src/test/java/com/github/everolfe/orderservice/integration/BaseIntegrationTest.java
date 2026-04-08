@@ -1,18 +1,14 @@
 package com.github.everolfe.orderservice.integration;
 
-import com.github.everolfe.orderservice.dto.user.GetUserDto;
 import com.github.everolfe.orderservice.integration.config.TestSecurityConfig;
 import java.time.Duration;
-import java.util.Collections;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import com.github.everolfe.orderservice.service.client.UserClientService;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -20,19 +16,15 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
 @ActiveProfiles("test")
 @Import(TestSecurityConfig.class)
-class BaseIntegrationTest {
+public abstract class BaseIntegrationTest {
 
-    @MockitoBean
-    protected UserClientService userServiceClient;
+    @LocalServerPort
+    protected int port;
 
     @Container
     static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
@@ -61,34 +53,6 @@ class BaseIntegrationTest {
                 () -> "org.hibernate.dialect.PostgreSQLDialect");
 
         registry.add("spring.liquibase.enabled", () -> "false");
-
-        registry.add("user.service.url", () -> "http://localhost:8081");
-    }
-
-    @BeforeEach
-    void setUpMocks() {
-        when(userServiceClient.getUserByEmail(anyString()))
-                .thenReturn(createTestUser(1L, "test@example.com"));
-
-        when(userServiceClient.getUserById(anyLong()))
-                .thenReturn(createTestUser(1L, "test@example.com"));
-
-        when(userServiceClient.getAllById(anyList()))
-                .thenReturn(Collections.singletonList(createTestUser(1L, "test@example.com")));
-    }
-
-    private GetUserDto createTestUser(Long id, String email) {
-        return new GetUserDto(
-                id,
-                "Test",
-                "User",
-                null,
-                email,
-                false,
-                Collections.emptyList(),
-                null,
-                null
-        );
     }
 
     @Test
