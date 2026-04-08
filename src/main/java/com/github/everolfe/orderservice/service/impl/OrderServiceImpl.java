@@ -125,6 +125,21 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<GetOrderDto> getOrdersByStatusAndCreationDate(
+            LocalDateTime start,
+            LocalDateTime end,
+            List<Status> statuses,
+            Pageable pageable
+    ){
+        Specification<Order> spec = OrderSpecification.combineFilters(
+                start,end,statuses
+        );
+        Page<Order> orders = orderRepository.findAll(spec, pageable);
+        return mapOrdersToGetDtos(orders);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Page<GetOrderDto> getAllOrders(Pageable pageable) {
         Page<Order> orders = orderRepository.findAll(pageable);
         return mapOrdersToGetDtos(orders);

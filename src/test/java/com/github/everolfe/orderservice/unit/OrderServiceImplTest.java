@@ -858,8 +858,83 @@ class OrderServiceImplTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser("ADMIN")
     void deleteOrder_withInvalidID_throwEntityNotFoundException(){
         assertThrows(EntityNotFoundException.class, () -> orderService.deleteOrder(1L));
+    }
+
+    @Test
+    @WithMockUser("ADMIN")
+    void getOrdersByStatusAndCreationDate_success(){
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Order order = new Order();
+        order.setId(1L);
+        order.setUserId(1L);
+        order.setStatus(Status.PENDING);
+
+        Page<Order> orderPage = new PageImpl<>(List.of(order), pageable, 1);
+
+        List<GetPaymentCardDto> cards = new ArrayList<>();
+        GetUserDto user = new GetUserDto(
+                1L,
+                "Test",
+                "TestN",
+                LocalDate.now(),
+                "email@gmail.com",
+                true,
+                cards,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
+        GetItemDto getItemDto = new GetItemDto(
+                1L,
+                "name",
+                BigDecimal.ONE,
+                false,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
+        GetOrderItemDto orderItemDto = new GetOrderItemDto(
+                1L,
+                2,
+                getItemDto,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
+        Set<GetOrderItemDto> orderItemDtoSet = new HashSet<>();
+        orderItemDtoSet.add(orderItemDto);
+        GetOrderDtoWithoutUser getOrderDtoWithoutUser = new GetOrderDtoWithoutUser(
+                1L,
+                "pending",
+                BigDecimal.ONE,
+                false,
+                orderItemDtoSet
+        );
+
+        List<GetUserDto> users = List.of(user);
+        List<Long> userIds = List.of(1L);
+
+
+        when(orderRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(orderPage);
+        when(userClientService.getAllById(userIds)).thenReturn(users);
+        when(getOrderWithoutUserMapper.toDto(any(Order.class))).thenReturn(getOrderDtoWithoutUser);
+
+        List<Status> statuses = List.of(Status.PENDING);
+        Page<GetOrderDto> res = orderService.getOrdersByStatusAndCreationDate(
+                LocalDateTime.now(), LocalDateTime.MAX, statuses, pageable);
+
+        assertAll(
+                () -> Assertions.assertNotNull(res),
+                () -> assertEquals(10, res.getSize()),
+                () -> Assertions.assertEquals(1L, res.getContent().getFirst().getOrderDtoWithoutUser().id())
+        );
+
+        verify(orderRepository, times(1)).findAll(any(Specification.class), eq(pageable));
+        verify(userClientService, times(1)).getAllById(userIds);
+        verify(getOrderWithoutUserMapper, times(1)).toDto(any(Order.class));
     }
 }

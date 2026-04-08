@@ -440,4 +440,68 @@ class OrderIntegrationTest extends BaseIntegrationTest {
                         .content(objectMapper.writeValueAsString(createOrderDto)))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    @WithMockUser(authorities = "ROLE_ADMIN")
+    void getOrdersByStatusesAndCreationDate_shouldReturnFilteredOrders() throws Exception {
+        CreateItemDto createItemDto = new CreateItemDto("Test Item", new BigDecimal("50.00"));
+        MvcResult itemResult = mockMvc.perform(post("/api/items")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createItemDto)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        GetItemDto item = objectMapper.readValue(
+                itemResult.getResponse().getContentAsString(),
+                GetItemDto.class
+        );
+
+        CreateOrderItemDto orderItemDto = new CreateOrderItemDto(item.id(), 1);
+
+        CreateOrderDto createOrderDto = new CreateOrderDto(
+                "test@example.com",
+                List.of(orderItemDto)
+        );
+        MvcResult createResult = mockMvc.perform(post(baseUrl)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createOrderDto)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        GetOrderDto created = objectMapper.readValue(
+                createResult.getResponse().getContentAsString(),
+                GetOrderDto.class
+        );
+        Long orderId = created.getOrderDtoWithoutUser().id();
+
+        StatusDto statusDto = new StatusDto(Status.PROCESSING);
+
+        mockMvc.perform(patch(baseUrl + "/{id}", orderId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(statusDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.getOrderDtoWithoutUser.status")
+                        .value(Status.PROCESSING.name()));
+
+
+        MvcResult result =mockMvc.perform(get(baseUrl)
+                        .param("statuses", Status.PROCESSING.name())
+                        .param("startDate", "2026-01-01T00:00:00")
+                        .param("endDate", "2026-12-31T23:59:59")
+                        .with(httpBasic("admin", "admin")))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseJson = result.getResponse().getContentAsString();
+        JsonNode root = objectMapper.readTree(responseJson);
+        JsonNode contentNode = root.get("content");
+        List<GetOrderDto> orders = objectMapper.readValue(
+                contentNode.toString(),
+                new com.fasterxml.jackson.core.type.TypeReference<List<GetOrderDto>>() {}
+        );
+
+        assertThat(orders).isNotEmpty();
+        assertThat(orders.get(0).getOrderDtoWithoutUser().status())
+                .isEqualTo(Status.PROCESSING.name());
+    }
 }

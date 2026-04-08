@@ -64,6 +64,20 @@ public interface OrderService {
     Page<GetOrderDto> getOrdersByStatus(List<Status> statuses, Pageable pageable);
 
     /**
+     * Retrieves orders by statuses and creation date
+     *
+     * @param start start date and time
+     * @param end end date and time
+     * @param status list of order statuses
+     * @return a page of order DTOs
+     */
+    Page<GetOrderDto> getOrdersByStatusAndCreationDate(
+            LocalDateTime start,
+            LocalDateTime end,
+            List<Status> status,
+            Pageable pageable);
+
+    /**
      * Retrieves all orders with pagination.
      *
      * @param pageable pagination information

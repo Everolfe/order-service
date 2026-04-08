@@ -8,7 +8,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 public class OrderSpecification {
 
-    private static final String CREATED_AT_FIELD = "created_at";
+    private static final String CREATED_AT_FIELD = "createdAt";
 
     private OrderSpecification() {}
 

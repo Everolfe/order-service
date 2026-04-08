@@ -51,7 +51,7 @@ public class OrderController {
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 
-    @GetMapping(params = "statuses")
+    @GetMapping(params = {"statuses", "!startDate", "!endDate"})
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<GetOrderDto>> getOrdersByStatuses(
             @RequestParam("statuses") List<Status> statuses,
@@ -60,12 +60,25 @@ public class OrderController {
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 
-    @GetMapping(params = {"startDate","endDate"})
+    @GetMapping(params = {"startDate", "endDate", "statuses"})
+    public ResponseEntity<Page<GetOrderDto>> getOrdersByStatusesAndCreationDate(
+        @RequestParam(value = "startDate",required = false) LocalDateTime startDate,
+        @RequestParam(value = "endDate", required = false) LocalDateTime endDate,
+        @RequestParam(value = "statuses", required = false) List<Status> statuses,
+        Pageable pageable
+    ){
+        Page<GetOrderDto> orders = orderService.getOrdersByStatusAndCreationDate(
+                startDate,endDate,statuses, pageable
+        );
+        return new ResponseEntity<>(orders, HttpStatus.OK);
+    }
+
+    @GetMapping(params = {"startDate", "endDate", "!statuses"})
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<GetOrderDto>> getOrdersByCreationDate(
             @RequestParam(name = "startDate", required = false) LocalDateTime startDate,
             @RequestParam(name = "endDate", required = false) LocalDateTime endDate,
-            Pageable pageable){
+            Pageable pageable) {
         Page<GetOrderDto> orders = orderService.getOrdersByCreationDate(startDate, endDate, pageable);
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
