@@ -1,5 +1,6 @@
 package com.github.everolfe.orderservice.controller;
 
+import com.github.everolfe.orderservice.dto.StatusDto;
 import com.github.everolfe.orderservice.dto.order.CreateOrderDto;
 import com.github.everolfe.orderservice.dto.order.GetOrderDto;
 import com.github.everolfe.orderservice.entity.Status;
@@ -42,15 +43,15 @@ public class OrderController {
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 
-    @GetMapping("/by-user-id/{userId}")
+    @GetMapping(params = "userId")
     public ResponseEntity<Page<GetOrderDto>> getOrdersByUserId(
-            @PathVariable("userId") Long userId,
+            @RequestParam("userId") Long userId,
             Pageable pageable) {
         Page<GetOrderDto> orders = orderService.getOrdersByUserId(userId,pageable);
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 
-    @GetMapping("/by-statuses")
+    @GetMapping(params = "statuses")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<GetOrderDto>> getOrdersByStatuses(
             @RequestParam("statuses") List<Status> statuses,
@@ -59,21 +60,21 @@ public class OrderController {
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 
-    @GetMapping("/by-creation-date")
+    @GetMapping(params = {"startDate","endDate"})
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<GetOrderDto>> getOrdersByCreationDate(
-            @RequestParam(name = "StartDate", required = false) LocalDateTime startDate,
-            @RequestParam(name = "EndDate", required = false) LocalDateTime endDate,
+            @RequestParam(name = "startDate", required = false) LocalDateTime startDate,
+            @RequestParam(name = "endDate", required = false) LocalDateTime endDate,
             Pageable pageable){
         Page<GetOrderDto> orders = orderService.getOrdersByCreationDate(startDate, endDate, pageable);
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 
-    @PatchMapping("/change-status/{id}")
+    @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GetOrderDto> changeStatus(
             @PathVariable("id") Long id,
-            Status status){
+            @RequestBody StatusDto status){
         GetOrderDto orderDto = orderService.updateOrderStatus(id, status);
         return new ResponseEntity<>(orderDto, HttpStatus.OK);
     }

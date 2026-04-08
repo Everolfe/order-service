@@ -3,6 +3,7 @@ package com.github.everolfe.orderservice.service.impl;
 import com.github.everolfe.orderservice.dao.ItemRepository;
 import com.github.everolfe.orderservice.dao.OrderRepository;
 import com.github.everolfe.orderservice.dao.OrderSpecification;
+import com.github.everolfe.orderservice.dto.StatusDto;
 import com.github.everolfe.orderservice.dto.order.CreateOrderDto;
 import com.github.everolfe.orderservice.dto.order.GetOrderDto;
 import com.github.everolfe.orderservice.dto.orderitem.CreateOrderItemDto;
@@ -131,7 +132,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public GetOrderDto updateOrderStatus(Long id, Status status) {
+    public GetOrderDto updateOrderStatus(Long id, StatusDto statusDto) {
+        Status status = statusDto.status();
         Order order = orderRepository.findById(id)
                 .filter(o -> !o.isDeleted())
                 .orElseThrow(() -> new EntityNotFoundException("Order not found: " + id));

@@ -3,6 +3,7 @@ package com.github.everolfe.orderservice.unit;
 
 import com.github.everolfe.orderservice.dao.ItemRepository;
 import com.github.everolfe.orderservice.dao.OrderRepository;
+import com.github.everolfe.orderservice.dto.StatusDto;
 import com.github.everolfe.orderservice.dto.item.GetItemDto;
 import com.github.everolfe.orderservice.dto.order.CreateOrderDto;
 import com.github.everolfe.orderservice.dto.order.GetOrderDto;
@@ -443,6 +444,7 @@ class OrderServiceImplTest {
         when(userClientService.getAllById(userIds)).thenReturn(users);
         when(getOrderWithoutUserMapper.toDto(any(Order.class))).thenReturn(getOrderDtoWithoutUser);
 
+
         Page<GetOrderDto> res = orderService.getOrdersByStatus(statuses, pageable);
 
         assertAll(
@@ -644,7 +646,9 @@ class OrderServiceImplTest {
         when(userClientService.getUserById(updatedOrder.getUserId())).thenReturn(user);
         when(getOrderWithoutUserMapper.toDto(updatedOrder)).thenReturn(getOrderDtoWithoutUser);
 
-        GetOrderDto result = orderService.updateOrderStatus(1L, Status.PROCESSING);
+        StatusDto statusDto = new StatusDto(Status.PROCESSING);
+
+        GetOrderDto result = orderService.updateOrderStatus(1L, statusDto);
 
         assertAll(
                 () -> Assertions.assertNotNull(result),
@@ -661,7 +665,8 @@ class OrderServiceImplTest {
     @Test
     @WithMockUser("ADMIN")
     void updateOrderStatus_withInvalidId_throwEntityNotFoundException(){
-        assertThrows(EntityNotFoundException.class, () -> orderService.updateOrderStatus(1L, Status.PENDING));
+        StatusDto statusDto = new StatusDto(Status.PENDING);
+        assertThrows(EntityNotFoundException.class, () -> orderService.updateOrderStatus(1L, statusDto));
     }
 
     @Test

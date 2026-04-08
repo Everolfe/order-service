@@ -1,5 +1,6 @@
 package com.github.everolfe.orderservice.service;
 
+import com.github.everolfe.orderservice.dto.StatusDto;
 import com.github.everolfe.orderservice.dto.order.CreateOrderDto;
 import com.github.everolfe.orderservice.dto.order.GetOrderDto;
 import com.github.everolfe.orderservice.entity.Status;
@@ -78,7 +79,7 @@ public interface OrderService {
      * @return the DTO of the updated order
      * @throws EntityNotFoundException if the order is not found
      */
-    GetOrderDto updateOrderStatus(Long id, Status status);
+    GetOrderDto updateOrderStatus(Long id, StatusDto status);
 
     /**
      * Updates an existing order.
@@ -94,7 +95,7 @@ public interface OrderService {
      * Soft-deletes an order by setting its deleted flag to true.
      *
      * @param id the ID of the order to delete
-     * @return true and delete order
+     * @return true if order successfully delete
      * @throws EntityNotFoundException if the order is not found or already deleted
      */
     boolean deleteOrder(Long id);

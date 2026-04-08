@@ -7,6 +7,7 @@ import com.github.everolfe.orderservice.dao.OrderRepository;
 import com.github.everolfe.orderservice.dto.item.CreateItemDto;
 import com.github.everolfe.orderservice.dto.item.GetItemDto;
 import com.github.everolfe.orderservice.dto.order.CreateOrderDto;
+import com.github.everolfe.orderservice.dto.StatusDto;
 import com.github.everolfe.orderservice.dto.order.GetOrderDto;
 import com.github.everolfe.orderservice.dto.orderitem.CreateOrderItemDto;
 import com.github.everolfe.orderservice.dto.orderitem.GetOrderItemDto;
@@ -245,7 +246,8 @@ class OrderIntegrationTest extends BaseIntegrationTest {
                     .andExpect(status().isCreated());
         }
 
-        MvcResult result = mockMvc.perform(get(baseUrl + "/by-user-id/{userId}", 1L)
+        MvcResult result = mockMvc.perform(get(baseUrl)
+                        .param("userId", "1")
                         .with(httpBasic("admin", "admin")))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -294,11 +296,16 @@ class OrderIntegrationTest extends BaseIntegrationTest {
         );
         Long orderId = created.getOrderDtoWithoutUser().id();
 
-        mockMvc.perform(patch(baseUrl + "/change-status/{id}", orderId)
-                        .param("status", Status.PROCESSING.name()))
+        StatusDto statusDto = new StatusDto(Status.PROCESSING);
+
+        mockMvc.perform(patch(baseUrl + "/{id}", orderId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(statusDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.getOrderDtoWithoutUser.status").value(Status.PROCESSING.name()));
-    }
+                .andExpect(jsonPath("$.getOrderDtoWithoutUser.status")
+                        .value(Status.PROCESSING.name()));
+
+       }
 
     @Test
     @WithMockUser(authorities = "ROLE_ADMIN")
@@ -376,11 +383,17 @@ class OrderIntegrationTest extends BaseIntegrationTest {
         );
         Long orderId = created.getOrderDtoWithoutUser().id();
 
-        mockMvc.perform(patch(baseUrl + "/change-status/{id}", orderId)
-                        .param("status", Status.PROCESSING.name()))
-                .andExpect(status().isOk());
+        StatusDto statusDto = new StatusDto(Status.PROCESSING);
 
-        MvcResult result = mockMvc.perform(get(baseUrl + "/by-statuses")
+        mockMvc.perform(patch(baseUrl + "/{id}", orderId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(statusDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.getOrderDtoWithoutUser.status")
+                        .value(Status.PROCESSING.name()));
+
+
+        MvcResult result = mockMvc.perform(get(baseUrl)
                         .param("statuses", Status.PROCESSING.name())
                         .with(httpBasic("admin", "admin")))
                 .andExpect(status().isOk())
