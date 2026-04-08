@@ -18,8 +18,10 @@ import com.github.everolfe.orderservice.service.OrderService;
 import com.github.everolfe.orderservice.service.client.UserClientService;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -51,26 +53,8 @@ public class OrderServiceImpl implements OrderService {
         order.setUserId(getUserDto.id());
         order.setStatus(Status.PENDING);
 
-        long totalPrice = 0L;
-
-        for(CreateOrderItemDto itemDto : createOrderDto.items()) {
-            Item item = itemRepository
-                    .findById(itemDto.itemId())
-                    .orElseThrow(() -> new EntityNotFoundException("Item not found: " + itemDto.itemId()));
-
-            OrderItem orderItem = new OrderItem();
-            orderItem.setQuantity(itemDto.quantity());
-            orderItem.setItem(item);
-            orderItem.setOrder(order);
-            order.getOrderItems().add(orderItem);
-
-
-            long itemTotalCents = item.getPrice() * itemDto.quantity();
-            totalPrice += itemTotalCents;
-        }
-
-        order.setTotalPrice(totalPrice);
-
+        List<OrderItem> orderItems = processOrderItems(order, createOrderDto.items());
+        order.getOrderItems().addAll(orderItems);
         Order savedOrder = orderRepository.save(order);
 
         return new GetOrderDto(
@@ -176,24 +160,9 @@ public class OrderServiceImpl implements OrderService {
                     userDto.email(), createOrderDto.userEmail()));
         }
         createOrderMapper.merge(order,createOrderDto);
-        long totalPriceCents = 0L;
 
-        for (CreateOrderItemDto itemDto : createOrderDto.items()) {
-            Item item = itemRepository
-                    .findById(itemDto.itemId())
-                    .orElseThrow(() -> new EntityNotFoundException("Item not found: " + itemDto.itemId()));
-
-            OrderItem orderItem = new OrderItem();
-            orderItem.setQuantity(itemDto.quantity());
-            orderItem.setItem(item);
-            orderItem.setOrder(order);
-            order.getOrderItems().add(orderItem);
-
-            long itemTotalCents = item.getPrice() * itemDto.quantity();
-            totalPriceCents += itemTotalCents;
-        }
-
-        order.setTotalPrice(totalPriceCents);
+        List<OrderItem> orderItems = processOrderItems(order, createOrderDto.items());
+        order.getOrderItems().addAll(orderItems);
         Order savedOrder = orderRepository.save(order);
         GetUserDto getUserDto = userClient.getUserById(savedOrder.getUserId());
         return new GetOrderDto(
@@ -232,5 +201,38 @@ public class OrderServiceImpl implements OrderService {
                 getOrderWithoutUserMapper.toDto(order),
                 getUserDtosMap.get(order.getUserId())
         ));
+    }
+    private List<OrderItem> processOrderItems(Order order, List<CreateOrderItemDto> itemsDto) {
+        List<Long> itemIds = itemsDto.stream()
+                .map(CreateOrderItemDto::itemId)
+                .toList();
+
+        List<Item> items = itemRepository.findAllById(itemIds);
+
+        Map<Long, Item> itemMap = items.stream()
+                .collect(Collectors.toMap(Item::getId, Function.identity()));
+
+        long totalPrice = 0L;
+        List<OrderItem> orderItems = new ArrayList<>();
+
+        for (CreateOrderItemDto itemDto : itemsDto) {
+            Long itemId = itemDto.itemId();
+            Item item = itemMap.get(itemId);
+
+            if (item == null) {
+                throw new EntityNotFoundException("Item not found: " + itemId);
+            }
+
+            OrderItem orderItem = new OrderItem();
+            orderItem.setQuantity(itemDto.quantity());
+            orderItem.setItem(item);
+            orderItem.setOrder(order);
+            orderItems.add(orderItem);
+
+            totalPrice += item.getPrice() * itemDto.quantity();
+        }
+
+        order.setTotalPrice(totalPrice);
+        return orderItems;
     }
 }

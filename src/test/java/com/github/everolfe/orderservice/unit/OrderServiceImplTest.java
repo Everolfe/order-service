@@ -104,6 +104,7 @@ class OrderServiceImplTest {
         );
 
         Item itemEntity = new Item();
+        itemEntity.setId(1L);
         itemEntity.setPrice(100L);
 
         GetItemDto getItemDto = new GetItemDto(
@@ -132,9 +133,10 @@ class OrderServiceImplTest {
             false,
                 orderItemDtoSet
         );
-
+        List<Long> itemIds = List.of(1L);
+        List<Item> itemsEntities = List.of(itemEntity);
         when(userClientService.getUserByEmail(createOrderDto.userEmail())).thenReturn(user);
-        when(itemRepository.findById(1L)).thenReturn(Optional.of(itemEntity));
+        when(itemRepository.findAllById(itemIds)).thenReturn(itemsEntities);
         when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
         when(getOrderWithoutUserMapper.toDto(savedOrder)).thenReturn(getOrderDtoWithoutUser);
 
@@ -146,7 +148,7 @@ class OrderServiceImplTest {
         );
 
         verify(userClientService, times(1)).getUserByEmail(createOrderDto.userEmail());
-        verify(itemRepository, times(1)).findById(1L);
+        verify(itemRepository, times(1)).findAllById(itemIds);
         verify(orderRepository, times(1)).save(any(Order.class));
         verify(getOrderWithoutUserMapper, times(1)).toDto(savedOrder);
     }
@@ -209,8 +211,10 @@ class OrderServiceImplTest {
                 "email@gmail.com",
                 items
         );
+        List itemIds = List.of(1L);
+        List<Item> items1 = new ArrayList<>();
         when(userClientService.getUserByEmail(createOrderDto.userEmail())).thenReturn(user);
-        when(itemRepository.findById(1L)).thenReturn(Optional.empty());
+        when(itemRepository.findAllById(itemIds)).thenReturn(items1);
 
         assertThrows(EntityNotFoundException.class, () -> orderService.create(createOrderDto));
 
@@ -741,7 +745,10 @@ class OrderServiceImplTest {
 
         when(userClientService.getUserById(order.getUserId())).thenReturn(user);
 
-        when(itemRepository.findById(1L)).thenReturn(Optional.of(itemEntity));
+        List<Long> itemIds = List.of(1L);
+        List<Item> itemList = List.of(itemEntity);
+
+        when(itemRepository.findAllById(itemIds)).thenReturn(itemList);
         when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
         when(getOrderWithoutUserMapper.toDto(savedOrder)).thenReturn(getOrderDtoWithoutUser);
 
@@ -754,7 +761,7 @@ class OrderServiceImplTest {
         );
 
         verify(userClientService, times(2)).getUserById(order.getUserId());
-        verify(itemRepository, times(1)).findById(1L);
+        verify(itemRepository, times(1)).findAllById(itemIds);
         verify(orderRepository, times(1)).save(any(Order.class));
         verify(getOrderWithoutUserMapper, times(1)).toDto(savedOrder);
     }
