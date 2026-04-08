@@ -44,6 +44,7 @@ import org.springframework.web.client.ResourceAccessException;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -830,50 +831,25 @@ class OrderServiceImplTest {
         order.setTotalPrice(10000L);
         order.setDeleted(false);
 
-        GetUserDto user = new GetUserDto(
-                1L,
-                "Test",
-                "TestN",
-                LocalDate.now(),
-                "email@gmail.com",
-                true,
-                new ArrayList<>(),
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
 
         Order updatedOrder = new Order();
         updatedOrder.setId(1L);
         updatedOrder.setUserId(1L);
-        updatedOrder.setStatus(Status.PROCESSING);
+        updatedOrder.setStatus(Status.PENDING);
         updatedOrder.setTotalPrice(10000L);
         updatedOrder.setDeleted(true);
 
-        GetOrderDtoWithoutUser getOrderDtoWithoutUser = new GetOrderDtoWithoutUser(
-                1L,
-                "processing",
-                BigDecimal.valueOf(100.00),
-                true,
-                Set.of()
-        );
+
 
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
         when(orderRepository.save(any(Order.class))).thenReturn(updatedOrder);
-        when(userClientService.getUserById(updatedOrder.getUserId())).thenReturn(user);
-        when(getOrderWithoutUserMapper.toDto(updatedOrder)).thenReturn(getOrderDtoWithoutUser);
 
-        GetOrderDto result = orderService.updateOrderStatus(1L, Status.PROCESSING);
+        boolean result = orderService.deleteOrder(1L);
 
-        assertAll(
-                () -> Assertions.assertNotNull(result),
-                () -> Assertions.assertTrue(
-                        result.getOrderDtoWithoutUser().deleted())
-        );
+        assertTrue(result);
 
         verify(orderRepository, times(1)).findById(1L);
         verify(orderRepository, times(1)).save(any(Order.class));
-        verify(userClientService, times(1)).getUserById(1L);
-        verify(getOrderWithoutUserMapper, times(1)).toDto(updatedOrder);
     }
 
     @Test

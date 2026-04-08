@@ -334,16 +334,9 @@ class OrderIntegrationTest extends BaseIntegrationTest {
         Long orderId = created.getOrderDtoWithoutUser().id();
 
         MvcResult deleteResult = mockMvc.perform(delete(baseUrl + "/{id}", orderId))
-                .andExpect(status().isOk())
+                .andExpect(status().isNoContent())
                 .andReturn();
 
-        GetOrderDto deleted = objectMapper.readValue(
-                deleteResult.getResponse().getContentAsString(),
-                GetOrderDto.class
-        );
-
-        assertThat(deleted.getOrderDtoWithoutUser().id()).isEqualTo(orderId);
-        assertThat(deleted.getOrderDtoWithoutUser().deleted()).isTrue();
 
         mockMvc.perform(get(baseUrl + "/{id}", orderId)
                         .with(httpBasic("admin", "admin")))

@@ -89,8 +89,8 @@ public class OrderController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<GetOrderDto> deleteOrder(@PathVariable("id") Long id){
-        GetOrderDto orderDto = orderService.deleteOrder(id);
-        return new ResponseEntity<>(orderDto, HttpStatus.OK);
+    public ResponseEntity<Void> deleteOrder(@PathVariable("id") Long id){
+        orderService.deleteOrder(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

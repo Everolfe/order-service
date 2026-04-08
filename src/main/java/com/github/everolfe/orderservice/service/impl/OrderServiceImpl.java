@@ -187,19 +187,15 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public GetOrderDto deleteOrder(Long id) {
+    public boolean deleteOrder(Long id) {
         Order order = orderRepository
                 .findById(id)
                 .filter(o -> !o.isDeleted())
                 .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + id));
 
-        GetUserDto userDto = userClient.getUserById(order.getUserId());
         order.setDeleted(true);
-        Order savedOrder = orderRepository.save(order);
-        return new GetOrderDto(
-                getOrderWithoutUserMapper.toDto(savedOrder),
-                userDto
-        );
+        orderRepository.save(order);
+        return true;
     }
 
     private Page<GetOrderDto> mapOrdersToGetDtos(Page<Order> orders) {

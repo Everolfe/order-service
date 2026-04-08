@@ -94,8 +94,8 @@ public interface OrderService {
      * Soft-deletes an order by setting its deleted flag to true.
      *
      * @param id the ID of the order to delete
-     * @return the DTO of the deleted order
+     * @return true and delete order
      * @throws EntityNotFoundException if the order is not found or already deleted
      */
-    GetOrderDto deleteOrder(Long id);
+    boolean deleteOrder(Long id);
 }
