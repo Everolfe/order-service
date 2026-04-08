@@ -340,7 +340,7 @@ class OrderIntegrationTest extends BaseIntegrationTest {
         );
         Long orderId = created.getOrderDtoWithoutUser().id();
 
-        MvcResult deleteResult = mockMvc.perform(delete(baseUrl + "/{id}", orderId))
+        mockMvc.perform(delete(baseUrl + "/{id}", orderId))
                 .andExpect(status().isNoContent())
                 .andReturn();
 
