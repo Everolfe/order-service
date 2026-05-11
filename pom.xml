@@ -42,7 +42,7 @@
             **/com/github/everolfe/orderservice/controller/**,
             **/com/github/everolfe/orderservice/config/**,
             **/com/github/everolfe/orderservice/security/**,
-            **/com/github/everolfe/orderservice/service/client/**
+            **/com/github/everolfe/orderservice/service/client/**,
             **/com/github/everolfe/orderservice/service/event/**
         </sonar.coverage.exclusions>
         <sonar.tests>src/test/java</sonar.tests>
