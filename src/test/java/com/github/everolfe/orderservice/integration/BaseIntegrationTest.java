@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -35,6 +36,9 @@ public abstract class BaseIntegrationTest {
             .withConnectTimeoutSeconds(120)
             .waitingFor(Wait.forListeningPort());
 
+    @Container
+    static final KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.0"));
+
     @DynamicPropertySource
     static void properties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
@@ -53,6 +57,13 @@ public abstract class BaseIntegrationTest {
                 () -> "org.hibernate.dialect.PostgreSQLDialect");
 
         registry.add("spring.liquibase.enabled", () -> "false");
+
+
+        registry.add("spring.kafka.bootstrap-servers", kafkaContainer::getBootstrapServers);
+        registry.add("ORDER_PRODUCER_TOPIC", () -> "create-order");
+        registry.add("ORDER_CONSUMER_TOPIC", () -> "create-payment");
+        registry.add("GROUP_ID", () -> "order-service-group");
+        registry.add("BOOTSTRAP_SERVER", kafkaContainer::getBootstrapServers);
     }
 
     @Test
