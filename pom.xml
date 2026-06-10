@@ -29,7 +29,7 @@
     <properties>
         <java.version>21</java.version>
         <spring-cloud.version>2025.0.1</spring-cloud.version>
-
+        <testcontainers.version>1.19.7</testcontainers.version>
         <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
         <sonar.coverage.exclusions>
@@ -42,7 +42,8 @@
             **/com/github/everolfe/orderservice/controller/**,
             **/com/github/everolfe/orderservice/config/**,
             **/com/github/everolfe/orderservice/security/**,
-            **/com/github/everolfe/orderservice/service/client/**
+            **/com/github/everolfe/orderservice/service/client/**,
+            **/com/github/everolfe/orderservice/service/event/**
         </sonar.coverage.exclusions>
         <sonar.tests>src/test/java</sonar.tests>
     </properties>
@@ -73,7 +74,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.liquibase</groupId>
@@ -112,6 +116,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
@@ -122,6 +130,18 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-contract-stub-runner</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>kafka</artifactId>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

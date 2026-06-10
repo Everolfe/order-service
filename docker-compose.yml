@@ -23,11 +23,15 @@ services:
       - "${APP_PORT}:${APP_PORT}"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      D_DB_HOST: postgres-db
       APP_PORT: ${APP_PORT}
       D_DB_USERNAME: ${DB_USERNAME}
       D_DB_PASSWORD: ${DB_PASSWORD}
       D_DB_HOST_PORT: ${D_DB_HOST_PORT}
       D_DB_NAME: ${DB_NAME}
+      ORDER_CONSUMER_TOPIC: create-payment
+      BOOTSTRAP_SERVER: kafka:9092
+      GROUP_ID: order-service-group
       DOCKER_USER_URL: ${DOCKER_USER_URL}
     depends_on:
       postgres-db:
